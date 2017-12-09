@@ -5,6 +5,7 @@ namespace Preferans\Oauth\AuthorizationValidators;
 use Phalcon\Http\RequestInterface;
 use Phalcon\Di\InjectionAwareInterface;
 use Phalcon\Events\EventsAwareInterface;
+use Preferans\Oauth\Server\CryptKey;
 
 /**
  * Preferans\Oauth\AuthorizationValidators\AuthorizationValidatorInterface
@@ -22,4 +23,11 @@ interface AuthorizationValidatorInterface extends InjectionAwareInterface, Event
      * @return RequestInterface
      */
     public function validateAuthorization(RequestInterface $request);
+
+    /**
+     * Set the public key
+     *
+     * @param CryptKey $key
+     */
+    public function setPublicKey(CryptKey $key);
 }
