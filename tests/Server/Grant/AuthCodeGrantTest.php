@@ -205,7 +205,7 @@ class AuthCodeGrantTest extends TestCase
                 'foo',
                 null,
                 'http://foo/bar',
-                $crypt->encrypt(json_encode(
+                $crypt->encryptBase64(json_encode(
                     [
                         'auth_code_id'          => uniqid(),
                         'expire_time'           => time() + 3600,
@@ -216,7 +216,7 @@ class AuthCodeGrantTest extends TestCase
                         'code_challenge'        => $codeChallenge,
                         'code_challenge_method' => $method,
                     ]
-                )),
+                ), null, true),
                 'http://foo/bar',
                 'foobar',
                 'authorization_code'
@@ -293,7 +293,7 @@ class AuthCodeGrantTest extends TestCase
                 'foo',
                 null,
                 'http://foo/bar',
-                $crypt->encrypt(json_encode(
+                $crypt->encryptBase64(json_encode(
                     [
                         'auth_code_id'          => uniqid(),
                         'expire_time'           => time() + 3600,
@@ -304,7 +304,7 @@ class AuthCodeGrantTest extends TestCase
                         'code_challenge'        => 'foobar',
                         'code_challenge_method' => $method,
                     ]
-                )),
+                ), null, true),
                 'http://foo/bar',
                 'none',
                 'authorization_code'
@@ -376,7 +376,7 @@ class AuthCodeGrantTest extends TestCase
                 'foo',
                 null,
                 'http://foo/bar',
-                $crypt->encrypt(json_encode(
+                $crypt->encryptBase64(json_encode(
                     [
                         'auth_code_id'          => uniqid(),
                         'expire_time'           => time() + 3600,
@@ -387,7 +387,7 @@ class AuthCodeGrantTest extends TestCase
                         'code_challenge'        => 'foobar',
                         'code_challenge_method' => 'plain',
                     ]
-                )),
+                ), null, true),
                 'http://foo/bar',
                 null,
                 'authorization_code'
@@ -454,7 +454,7 @@ class AuthCodeGrantTest extends TestCase
                 'foo',
                 null,
                 'http://foo/bar',
-                $crypt->encrypt(json_encode(['scopes' => ''])),
+                $crypt->encryptBase64(json_encode(['scopes' => '']), null, true),
                 'http://foo/bar',
                 'authorization_code'
             );

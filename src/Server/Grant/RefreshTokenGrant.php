@@ -71,7 +71,7 @@ class RefreshTokenGrant extends AbstractGrant
                 }
 
                 return $scope;
-            }, explode(' ',$oldRefreshToken['scopes']));
+            }, explode(' ', $oldRefreshToken['scopes']));
         } else {
             // The OAuth spec says that a refreshed access token can have the original scopes or fewer so ensure
             // the request doesn't include any new scopes
