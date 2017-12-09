@@ -1,3 +1,4 @@
+# Default for those who don't have core.autocrlf set
 * text=auto
 
 /.editorconfig    export-ignore

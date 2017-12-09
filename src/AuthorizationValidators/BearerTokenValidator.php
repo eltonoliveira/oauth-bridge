@@ -45,7 +45,7 @@ class BearerTokenValidator extends Component implements AuthorizationValidatorIn
     }
 
     /**
-     * Set the public key
+     * {@inheritdoc}
      *
      * @param CryptKey $key
      */

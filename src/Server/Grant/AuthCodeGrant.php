@@ -366,7 +366,7 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
     /**
      * Validate auth code payload.
      *
-     * @param $authCodePayload
+     * @param \stdClass $authCodePayload
      * @throws OAuthServerException
      */
     private function validateAuthCodePayload($authCodePayload)

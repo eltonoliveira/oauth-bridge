@@ -19,7 +19,7 @@ interface TokenInterface
     /**
      * Set the token's identifier.
      *
-     * @param $identifier
+     * @param string $identifier
      */
     public function setIdentifier($identifier);
 

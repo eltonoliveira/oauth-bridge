@@ -170,7 +170,7 @@ class AuthorizationRequest
     public function getFinalRedirectUri()
     {
         if ($this->redirectUri === null) {
-            if ($this->getClient() && is_array($this->getClient()->getRedirectUri())) {
+            if (is_array($this->getClient()->getRedirectUri())) {
                 return $this->getClient()->getRedirectUri()[0];
             }
 
