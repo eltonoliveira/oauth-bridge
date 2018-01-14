@@ -13,17 +13,22 @@ git:
   depth: 1
 
 cache:
-  apt: true
-  ccache: true
-  timeout: 604800
-  directories:
-    - vendor
-    - $HOME/.composer/cache
-    - $HOME/.local/lib
+    # See: https://github.com/travis-ci/travis-ci/issues/8714
+    edge: true
+    apt: true
+    ccache: true
+    timeout: 604800
+    directories:
+        - vendor
+        - $HOME/.ccache
+        - $HOME/.composer/cache
+        - $HOME/pear
+        - $HOME/.local/lib
 
 env:
   global:
     - PATH="$PATH:~/bin"
+    - PHALCON_VERSION=3.3.1
 
 matrix:
     fast_finish: true
@@ -34,7 +39,7 @@ before_install:
   - if [ ! -z "${GH_TOKEN}" ]; then composer config github-oauth.github.com ${GH_TOKEN}; echo "Configured Github token"; fi;
 
 install:
-  - bash tests/_ci/install-phalcon.sh
+  - bash tests/ci/install-phalcon.sh
   - |
     composer install \
       --ignore-platform-reqs \
