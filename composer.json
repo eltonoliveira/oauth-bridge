@@ -32,8 +32,8 @@
     "require-dev": {
         "phpstan/phpstan": "@stable",
         "phpunit/phpunit": "@stable",
-        "humbug/humbug": "1.0.0-RC.0@RC",
-        "squizlabs/php_codesniffer": "@stable"
+        "squizlabs/php_codesniffer": "@stable",
+        "infection/infection": "^0.7.0"
     },
     "authors": [
         {

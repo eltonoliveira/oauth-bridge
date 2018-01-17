@@ -57,8 +57,7 @@ script:
   - vendor/bin/phpstan analyse -l max src
   - vendor/bin/phpcs
   - vendor/bin/phpunit --disallow-test-output
-  - vendor/bin/humbug
-  - vendor/bin/humbug stats
+  - vendor/bin/infection run
 
 after_success:
     - if [[ ! -z "${CODECOV_TOKEN}" ]]; then bash <(curl -s https://codecov.io/bash); fi;
