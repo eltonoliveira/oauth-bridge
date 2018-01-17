@@ -278,7 +278,7 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
             }
 
             $codeChallengeMethod = $this->getQueryStringParameter('code_challenge_method', $request, 'plain');
-            if (!array_key_exists($codeChallengeMethod, $this->codeChallengeVerifiers)) {
+            if (!isset($this->codeChallengeVerifiers[$codeChallengeMethod])) {
                 $validVerifies = array_map(function ($method) {
                     return '`' . $method . '`';
                 }, array_keys($this->codeChallengeVerifiers));

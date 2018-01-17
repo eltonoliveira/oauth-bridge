@@ -34,11 +34,7 @@ class RequestAttributes implements RequestAttributesInterface
      */
     public function getAttribute($name, $default = null)
     {
-        if (false === array_key_exists($name, $this->attributes)) {
-            return $default;
-        }
-
-        return $this->attributes[$name];
+        return isset($this->attributes[$name]) ? $this->attributes[$name] : $default;
     }
 
     /**
