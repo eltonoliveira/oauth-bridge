@@ -22,14 +22,14 @@ class S256VerifierTest extends TestCase
         $this->assertTrue(
             $verifier->verifyCodeChallenge(
                 'foo',
-                hash('sha256', strtr(rtrim(base64_encode('foo'), '='), '+/', '-_'))
+                strtr(rtrim(base64_encode(hash('sha256', 'foo', true)), '='), '+/', '-_')
             )
         );
 
         $this->assertFalse(
             $verifier->verifyCodeChallenge(
                 'foo',
-                hash('sha256', strtr(rtrim(base64_encode('bar'), '='), '+/', '-_'))
+                strtr(rtrim(base64_encode(hash('sha256', 'bar', true)), '='), '+/', '-_')
             )
         );
     }

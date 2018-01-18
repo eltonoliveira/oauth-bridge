@@ -466,7 +466,7 @@ class AuthCodeGrantTest extends TestCase
     {
         return [
             ['plain', 'foobar', new PlainVerifier()],
-            ['S256', hash('sha256', strtr(rtrim(base64_encode('foobar'), '='), '+/', '-_')), new S256Verifier()],
+            ['S256', strtr(rtrim(base64_encode(hash('sha256', 'foobar', true)), '='), '+/', '-_'), new S256Verifier()],
         ];
     }
 
