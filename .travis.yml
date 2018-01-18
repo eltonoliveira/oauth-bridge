@@ -4,13 +4,13 @@ dist: trusty
 sudo: false
 
 php:
-  - 7.0
-  - 7.1
-  - 7.2
-  - nightly
+    - 7.0
+    - 7.1
+    - 7.2
+    - nightly
 
 git:
-  depth: 1
+    depth: 1
 
 cache:
     # See: https://github.com/travis-ci/travis-ci/issues/8714
@@ -26,9 +26,9 @@ cache:
         - $HOME/.local/lib
 
 env:
-  global:
-    - PATH="$PATH:~/bin"
-    - PHALCON_VERSION=v3.3.1
+    global:
+        - PATH="$PATH:~/bin"
+        - PHALCON_VERSION=v3.3.1
 
 matrix:
     fast_finish: true
@@ -36,34 +36,33 @@ matrix:
         - php: nightly
 
 before_install:
-  - if [ ! -z "${GH_TOKEN}" ]; then composer config github-oauth.github.com ${GH_TOKEN}; echo "Configured Github token"; fi;
-  - export PHP_MAJOR="$(`phpenv which php` -r 'echo phpversion();' | cut -d '.' -f 1)"
-  - export PHP_MINOR="$(`phpenv which php` -r 'echo phpversion();' | cut -d '.' -f 2)"
+    - if [ ! -z "${GH_TOKEN}" ]; then composer config github-oauth.github.com ${GH_TOKEN}; echo "Configured Github token"; fi;
 
 install:
-  - bash tests/ci/install-phalcon.sh
-  - |
-    composer install \
-      --ignore-platform-reqs \
-      --prefer-dist \
-      --no-interaction \
-      --quiet \
-      --no-ansi \
-      --no-progress \
-      --optimize-autoloader \
-      --dev \
-      --no-suggest
+    - bash tests/ci/install-phalcon.sh
+    - |
+        composer install \
+            --ignore-platform-reqs \
+            --prefer-dist \
+            --no-interaction \
+            --quiet \
+            --no-ansi \
+            --no-progress \
+            --optimize-autoloader \
+            --dev \
+            --no-suggest
+    - $(phpenv which php) --ri phalcon
 
 script:
-  - vendor/bin/phpstan analyse -l max src
-  - vendor/bin/phpcs
-  - vendor/bin/phpunit --disallow-test-output
-  - vendor/bin/infection run
+    - vendor/bin/phpstan analyse -l max src
+    - vendor/bin/phpcs
+    - vendor/bin/phpunit --disallow-test-output
+    - vendor/bin/infection run
 
 after_success:
     - if [[ ! -z "${CODECOV_TOKEN}" ]]; then bash <(curl -s https://codecov.io/bash); fi;
 
 notifications:
-  email:
-    on_success: never
-    on_failure: never
+    email:
+        on_success: never
+        on_failure: never
