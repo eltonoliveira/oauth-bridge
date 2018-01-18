@@ -30,6 +30,11 @@
         "lcobucci/jwt": "^3.2"
     },
     "require-dev": {
+        "symfony/console": "3.4.*",
+        "symfony/debug": "3.4.*",
+        "symfony/finder": "3.4.*",
+        "symfony/yaml": "3.4.*",
+        "symfony/process": "3.4.*",
         "phpstan/phpstan": "@stable",
         "phpunit/phpunit": "@stable",
         "squizlabs/php_codesniffer": "@stable",

@@ -37,6 +37,8 @@ matrix:
 
 before_install:
   - if [ ! -z "${GH_TOKEN}" ]; then composer config github-oauth.github.com ${GH_TOKEN}; echo "Configured Github token"; fi;
+  - export PHP_MAJOR="$(`phpenv which php` -r 'echo phpversion();' | cut -d '.' -f 1)"
+  - export PHP_MINOR="$(`phpenv which php` -r 'echo phpversion();' | cut -d '.' -f 2)"
 
 install:
   - bash tests/ci/install-phalcon.sh
@@ -51,7 +53,6 @@ install:
       --optimize-autoloader \
       --dev \
       --no-suggest
-  - $(phpenv which php) --ri phalcon
 
 script:
   - vendor/bin/phpstan analyse -l max src
