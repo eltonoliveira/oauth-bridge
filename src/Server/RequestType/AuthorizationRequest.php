@@ -183,7 +183,7 @@ class AuthorizationRequest
     /**
      * @param string $redirectUri
      */
-    public function setRedirectUri($redirectUri)
+    public function setRedirectUri(string $redirectUri)
     {
         $this->redirectUri = $redirectUri;
     }

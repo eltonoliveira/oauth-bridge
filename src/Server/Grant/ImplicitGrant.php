@@ -164,9 +164,11 @@ class ImplicitGrant extends AbstractAuthorizeGrant
         } elseif (is_array($clientRedirect) && count($clientRedirect) !== 1 || empty($clientRedirect)) {
             $this->getEventsManager()->fire(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request);
             throw OAuthServerException::invalidClient();
+        } else {
+            $redirectUri = is_array($clientRedirect) ? $clientRedirect[0] : $clientRedirect;
         }
 
-        $scopes = $this->getScopesFromRequest($request, true, $clientRedirect, $this->defaultScope);
+        $scopes = $this->getScopesFromRequest($request, true, $redirectUri, $this->defaultScope);
 
         // Finalize the requested scopes
         $finalizedScopes = $this->scopeRepository->finalizeScopes(
