@@ -28,4 +28,24 @@ class CryptKeyTest extends TestCase
         $this->assertEquals('file://' . $this->publicKey, $key->getKeyPath());
         $this->assertEquals('secret', $key->getPassPhrase());
     }
+
+    /** @test */
+    public function shouldCreateKeyFile()
+    {
+        $keyContent = file_get_contents($this->publicKey);
+        $key = new CryptKey($keyContent);
+
+        $this->assertEquals(
+            'file://' . sys_get_temp_dir() . '/' . sha1($keyContent) . '.key',
+            $key->getKeyPath()
+        );
+
+        $keyContent = file_get_contents($this->privateCrlfKey);
+        $key = new CryptKey($keyContent);
+
+        $this->assertEquals(
+            'file://' . sys_get_temp_dir() . '/' . sha1($keyContent) . '.key',
+            $key->getKeyPath()
+        );
+    }
 }
