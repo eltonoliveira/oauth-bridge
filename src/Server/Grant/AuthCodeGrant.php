@@ -258,7 +258,7 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
 
         $authorizationRequest->setScopes($scopes);
 
-        if ($redirectUri !== null) {
+        if (!empty($redirectUri)) {
             $authorizationRequest->setRedirectUri($redirectUri);
         }
 
