@@ -308,7 +308,7 @@ abstract class AbstractGrant extends Injectable implements GrantTypeInterface
      * @param RequestInterface $request
      * @param mixed            $default
      *
-     * @return null|string
+     * @return string|mixed
      */
     protected function getRequestParameter(string $parameter, RequestInterface $request, $default = null)
     {
