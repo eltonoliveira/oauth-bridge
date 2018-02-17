@@ -42,7 +42,10 @@ trait RequestScopesAwareTrait
         }
 
         if ($requestScopes !== null) {
-            $scopes = $this->validateScopes($requestScopes, $redirectUri);
+            $scopes = $this->validateScopes(
+                is_array($requestScopes) ? implode(' ', $requestScopes) : $requestScopes,
+                $redirectUri
+            );
         }
 
         return $scopes;

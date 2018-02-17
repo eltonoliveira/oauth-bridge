@@ -24,6 +24,7 @@ class RefreshTokenGrant extends AbstractGrant
      * RefreshTokenGrant constructor.
      *
      * @param RefreshTokenRepositoryInterface $refreshTokenRepository
+     * @throws \Exception
      */
     public function __construct(RefreshTokenRepositoryInterface $refreshTokenRepository)
     {
@@ -53,14 +54,6 @@ class RefreshTokenGrant extends AbstractGrant
 
         $scopes = $this->getScopesFromRequest($request, false, null, $oldRefreshToken['scopes']);
 
-        // The OAuth spec says that a refreshed access token can have the original scopes
-        // or fewer so ensure the request doesn't include any new scopes
-        foreach ($scopes as $scope) {
-            if (!in_array($scope->getIdentifier(), explode(' ', $oldRefreshToken['scopes']))) {
-                throw OAuthServerException::invalidScope($scope->getIdentifier());
-            }
-        }
-
         // If no new scopes are requested then give the access token the original session scopes
         if (!count($scopes)) {
             $scopes = array_map(function ($scopeId) {
@@ -72,13 +65,13 @@ class RefreshTokenGrant extends AbstractGrant
 
                 return $scope;
             }, explode(' ', $oldRefreshToken['scopes']));
-        } else {
-            // The OAuth spec says that a refreshed access token can have the original scopes or fewer so ensure
-            // the request doesn't include any new scopes
-            foreach ($scopes as $scope) {
-                if (in_array($scope->getIdentifier(), explode(' ', $oldRefreshToken['scopes'])) === false) {
-                    throw OAuthServerException::invalidScope($scope->getIdentifier());
-                }
+        }
+
+        // The OAuth spec says that a refreshed access token can have the original scopes or fewer so ensure
+        // the request doesn't include any new scopes
+        foreach ($scopes as $scope) {
+            if (in_array($scope->getIdentifier(), explode(' ', $oldRefreshToken['scopes'])) === false) {
+                throw OAuthServerException::invalidScope($scope->getIdentifier());
             }
         }
 

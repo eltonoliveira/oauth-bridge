@@ -183,7 +183,7 @@ abstract class AbstractGrant extends Injectable implements GrantTypeInterface
      *
      * @return ScopeEntityInterface[]
      */
-    public function validateScopes($scopes, $redirectUri = null)
+    public function validateScopes(string $scopes, $redirectUri = null)
     {
         $scopesList = array_filter(
             explode(self::SCOPE_DELIMITER_STRING, trim($scopes)),
