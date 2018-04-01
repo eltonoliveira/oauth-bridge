@@ -233,8 +233,8 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
         $arFactory->setEventsManager($this->getEventsManager());
 
         $redirectUri = $this->getQueryStringParameter('redirect_uri', $request);
-        $requestedState = $this->getQueryStringParameter('state', $request);
         $scopes =  $this->getScopesFromRequest($request, true, $redirectUri, $this->getDefaultScope());
+        $requestedState = $this->getQueryStringParameter('state', $request);
 
         $authorizationRequest = $arFactory->createAuthorizationRequest(
             $this,
