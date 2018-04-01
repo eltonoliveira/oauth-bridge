@@ -155,13 +155,22 @@ class ImplicitGrant extends AbstractAuthorizeGrant
         $arFactory  = new RequestTypeFactory();
         $arFactory->setEventsManager($this->getEventsManager());
 
+        $redirectUri = $this->getQueryStringParameter('redirect_uri', $request);
+        $requestedState = $this->getQueryStringParameter('state', $request);
+
+        $scopes = [];
+        $requestedScopes = $this->getScopesFromRequest($request, true, $redirectUri, $this->getDefaultScope());
+        if ($requestedScopes) {
+            $scopes = $this->getScopeRepository()->finalizeScopes($scopes, $this->getIdentifier(), $client);
+        }
+
         $authorizationRequest = $arFactory->createAuthorizationRequest(
             $this,
             $client,
             $request,
-            $this->getQueryStringParameter('redirect_uri', $request),
-            $this->getQueryStringParameter('state', $request),
-            true
+            $redirectUri,
+            $requestedState,
+            $scopes
         );
 
         return $authorizationRequest;

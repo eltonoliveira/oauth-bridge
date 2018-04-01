@@ -12,6 +12,7 @@ use Preferans\Oauth\Server\RequestEvent;
 use Phalcon\Http\Response\CookiesInterface;
 use Preferans\Oauth\Traits\CryptAwareTrait;
 use Preferans\Oauth\Traits\EventsAwareTrait;
+use Preferans\Oauth\Http\RedirectUriAwareTrait;
 use Preferans\Oauth\Entities\ScopeEntityInterface;
 use Preferans\Oauth\Entities\ClientEntityInterface;
 use Preferans\Oauth\Exceptions\OAuthServerException;
@@ -35,7 +36,7 @@ use Preferans\Oauth\Exceptions\UniqueTokenIdentifierConstraintViolationException
  */
 abstract class AbstractGrant extends Injectable implements GrantTypeInterface
 {
-    use EventsAwareTrait, CryptAwareTrait;
+    use EventsAwareTrait, CryptAwareTrait, RedirectUriAwareTrait;
 
     const SCOPE_DELIMITER_STRING = ' ';
 
@@ -304,19 +305,11 @@ abstract class AbstractGrant extends Injectable implements GrantTypeInterface
         }
 
         // If a redirect URI is provided ensure it matches what is pre-registered
-        $redirectUri = $this->getRequestParameter('redirect_uri', $request);
-
-        if ($redirectUri !== null) {
-            if (is_string($client->getRedirectUri()) && (strcmp($client->getRedirectUri(), $redirectUri) !== 0)) {
-                $this->getEventsManager()->fire(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request);
-                throw OAuthServerException::invalidClient();
-            } elseif (is_array($client->getRedirectUri())
-                && in_array($redirectUri, $client->getRedirectUri()) === false
-            ) {
-                $this->getEventsManager()->fire(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request);
-                throw OAuthServerException::invalidClient();
-            }
-        }
+        $this->validateRequestUri(
+            $client,
+            $request,
+            $this->getRequestParameter('redirect_uri', $request)
+        );
 
         return $client;
     }

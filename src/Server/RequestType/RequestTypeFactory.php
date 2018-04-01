@@ -4,11 +4,11 @@ namespace Preferans\Oauth\Server\RequestType;
 
 use Phalcon\Di\Injectable;
 use Phalcon\Http\RequestInterface;
+use Preferans\Oauth\Entities\ScopeEntityInterface;
 use Preferans\Oauth\Http\RedirectUriAwareTrait;
 use Preferans\Oauth\Exceptions\OAuthServerException;
 use Preferans\Oauth\Server\Grant\GrantTypeInterface;
 use Preferans\Oauth\Entities\ClientEntityInterface;
-use Preferans\Oauth\Traits\RequestScopesAwareTrait;
 
 /**
  * Preferans\Oauth\Server\RequestType\RequestTypeFactory
@@ -17,16 +17,18 @@ use Preferans\Oauth\Traits\RequestScopesAwareTrait;
  */
 class RequestTypeFactory extends Injectable
 {
-    use RequestScopesAwareTrait, RedirectUriAwareTrait;
+    use RedirectUriAwareTrait;
 
     /**
-     * @param GrantTypeInterface    $grantType
-     * @param ClientEntityInterface $client
-     * @param RequestInterface      $request
-     * @param string|null           $redirectUri
-     * @param string|null           $state
-     * @param bool                  $finalizeRequestedScopes
+     * @param GrantTypeInterface     $grantType
+     * @param ClientEntityInterface  $client
+     * @param RequestInterface       $request
+     * @param string|null            $redirectUri
+     * @param string|null            $state
+     * @param ScopeEntityInterface[] $scopes
+     *
      * @return AuthorizationRequest
+     *
      * @throws OAuthServerException
      */
     public function createAuthorizationRequest(
@@ -35,10 +37,20 @@ class RequestTypeFactory extends Injectable
         RequestInterface $request,
         string $redirectUri = null,
         string $state = null,
-        bool $finalizeRequestedScopes = false
+        array $scopes = []
     ) : AuthorizationRequest
     {
-        $redirectUri = $this->normalizeRequestUri($client, $request, $redirectUri);
+        $this->validateRequestUri($client, $request, $redirectUri);
+
+        if ($redirectUri === null) {
+            $clientRedirect = $client->getRedirectUri();
+
+            if (is_array($clientRedirect) && count($clientRedirect) !== 1 || empty($clientRedirect)) {
+                $this->throwInvalidClientException($request);
+            }
+
+            $redirectUri = is_array($clientRedirect) ? $clientRedirect[0] : $clientRedirect;
+        }
 
         $authorizationRequest = new AuthorizationRequest();
         $authorizationRequest->setGrantTypeId(
@@ -46,15 +58,6 @@ class RequestTypeFactory extends Injectable
         );
 
         $authorizationRequest->setClient($client);
-
-        $defaultScope = $grantType->getDefaultScope();
-        $scopes =  $this->getScopesFromRequest($request, true, $redirectUri, $defaultScope);
-
-        if ($finalizeRequestedScopes) {
-            $scopeRepository = $grantType->getScopeRepository();
-            $scopes = $scopeRepository->finalizeScopes($scopes, $grantType->getIdentifier(), $client);
-        }
-
         $authorizationRequest->setScopes($scopes);
         $authorizationRequest->setRedirectUri($redirectUri);
 

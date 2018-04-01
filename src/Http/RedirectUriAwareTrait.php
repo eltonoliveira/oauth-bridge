@@ -16,19 +16,23 @@ use Preferans\Oauth\Exceptions\OAuthServerException;
 trait RedirectUriAwareTrait
 {
     /**
-     * Normalize Request Uri
+     * Validate Request URI.
+     *
+     * If a redirect URI is provided ensure it matches what is pre-registered.
      *
      * @param ClientEntityInterface $client
      * @param RequestInterface      $request
      * @param string|null           $redirectUri
-     * @return string
+     *
+     * @return void
+     *
      * @throws OAuthServerException
      */
-    protected function normalizeRequestUri(
+    public function validateRequestUri(
         ClientEntityInterface $client,
         RequestInterface $request,
         string $redirectUri = null
-    ) : string
+    )
     {
         $clientRedirect = $client->getRedirectUri();
 
@@ -38,17 +42,16 @@ trait RedirectUriAwareTrait
             } elseif (is_array($clientRedirect) && in_array($redirectUri, $clientRedirect) === false) {
                 $this->throwInvalidClientException($request);
             }
-        } elseif (is_array($clientRedirect) && count($clientRedirect) !== 1 || empty($clientRedirect)) {
-            $this->throwInvalidClientException($request);
-        } else {
-            $redirectUri = is_array($clientRedirect) ? $clientRedirect[0] : $clientRedirect;
         }
-
-        return $redirectUri;
     }
 
     /**
+     * Throws OAuthServerException and fires an RequestEvent::CLIENT_AUTHENTICATION_FAILED event.
+     *
      * @param RequestInterface $request
+     *
+     * @return void
+     *
      * @throws OAuthServerException
      */
     protected function throwInvalidClientException(RequestInterface $request)
