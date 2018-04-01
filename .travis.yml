@@ -13,8 +13,6 @@ git:
     depth: 1
 
 cache:
-    # See: https://github.com/travis-ci/travis-ci/issues/8714
-    edge: true
     apt: true
     ccache: true
     timeout: 604800
@@ -28,7 +26,7 @@ cache:
 env:
     global:
         - PATH="$PATH:~/bin"
-        - PHALCON_VERSION=v3.3.1
+        - PHALCON_VERSION=v3.3.2
 
 matrix:
     fast_finish: true
