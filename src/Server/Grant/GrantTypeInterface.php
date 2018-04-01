@@ -134,4 +134,11 @@ interface GrantTypeInterface extends EventsAwareInterface
      * @return void
      */
     public function setDefaultScope(string $defaultScope);
+
+    /**
+     * Get the default scope for the current Grant Type.
+     *
+     * @return string|null
+     */
+    public function getDefaultScope();
 }

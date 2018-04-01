@@ -174,6 +174,16 @@ abstract class AbstractGrant extends Injectable implements GrantTypeInterface
     }
 
     /**
+     * {@inheritdoc}
+     *
+     * @return string|null
+     */
+    public function getDefaultScope()
+    {
+        return $this->defaultScope;
+    }
+
+    /**
      * Validate scopes in the request.
      *
      * @param string      $scopes

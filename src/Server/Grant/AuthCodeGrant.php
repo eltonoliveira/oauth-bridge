@@ -18,6 +18,7 @@ use Preferans\Oauth\Repositories\AuthCodeRepositoryInterface;
 use Preferans\Oauth\Server\ResponseType\ResponseTypeInterface;
 use Preferans\Oauth\Repositories\RefreshTokenRepositoryInterface;
 use Preferans\Oauth\Server\CodeChallengeVerifiers\CodeChallengeVerifierInterface;
+use Preferans\Oauth\Server\RequestType\RequestTypeFactory;
 
 /**
  * Preferans\Oauth\Server\Grant\AuthCodeGrant
@@ -39,9 +40,11 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
     private $codeChallengeVerifiers = [];
 
     /**
+     * AuthCodeGrant constructor.
+     *
      * @param AuthCodeRepositoryInterface     $authCodeRepository
      * @param RefreshTokenRepositoryInterface $refreshTokenRepository
-     * @param DateInterval                   $authCodeTTL
+     * @param DateInterval                    $authCodeTTL
      */
     public function __construct(
         AuthCodeRepositoryInterface $authCodeRepository,
@@ -125,9 +128,7 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
                 $scope = $this->scopeRepository->getScopeEntityByIdentifier($scopeId);
 
                 if (!$scope instanceof ScopeEntityInterface) {
-                    // @codeCoverageIgnoreStart
                     throw OAuthServerException::invalidScope($scopeId);
-                    // @codeCoverageIgnoreEnd
                 }
 
                 $scopes[] = $scope;
@@ -158,11 +159,9 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
                     throw OAuthServerException::invalidGrant('Failed to verify `code_verifier`.');
                 }
             } else {
-                // @codeCoverageIgnoreStart
                 throw OAuthServerException::serverError(
                     sprintf('Unsupported code challenge method `%s`', $authCodePayload->code_challenge_method)
                 );
-                // @codeCoverageIgnoreEnd
             }
         }
 
@@ -230,41 +229,16 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
             throw OAuthServerException::invalidClient();
         }
 
-        $redirectUri = $this->getQueryStringParameter('redirect_uri', $request);
-        $clientRedirect = $client->getRedirectUri();
+        $arFactory  = new RequestTypeFactory();
+        $arFactory->setEventsManager($this->getEventsManager());
 
-        if ($redirectUri !== null) {
-            if (is_string($clientRedirect) && (strcmp($clientRedirect, $redirectUri) !== 0)) {
-                $this->getEventsManager()->fire(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request);
-                throw OAuthServerException::invalidClient();
-            } elseif (is_array($clientRedirect) && in_array($redirectUri, $clientRedirect) === false) {
-                $this->getEventsManager()->fire(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request);
-                throw OAuthServerException::invalidClient();
-            }
-        } elseif (is_array($clientRedirect) && count($clientRedirect) !== 1 || empty($clientRedirect)) {
-            $this->getEventsManager()->fire(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request);
-            throw OAuthServerException::invalidClient();
-        } else {
-            $redirectUri = is_array($clientRedirect) ? $clientRedirect[0] : $clientRedirect;
-        }
-
-        $scopes = $this->getScopesFromRequest($request, true, $redirectUri, $this->defaultScope);
-
-        $stateParameter = $this->getQueryStringParameter('state', $request);
-
-        $authorizationRequest = new AuthorizationRequest();
-        $authorizationRequest->setGrantTypeId($this->getIdentifier());
-        $authorizationRequest->setClient($client);
-
-        $authorizationRequest->setScopes($scopes);
-
-        if (!empty($redirectUri)) {
-            $authorizationRequest->setRedirectUri($redirectUri);
-        }
-
-        if ($stateParameter !== null) {
-            $authorizationRequest->setState($stateParameter);
-        }
+        $authorizationRequest = $arFactory->createAuthorizationRequest(
+            $this,
+            $client,
+            $request,
+            $this->getQueryStringParameter('redirect_uri', $request),
+            $this->getQueryStringParameter('state', $request)
+        );
 
         if (!empty($this->codeChallengeVerifiers)) {
             $codeChallenge = $this->getQueryStringParameter('code_challenge', $request);
