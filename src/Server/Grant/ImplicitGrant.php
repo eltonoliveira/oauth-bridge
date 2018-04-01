@@ -7,6 +7,7 @@ use DateInterval;
 use LogicException;
 use Phalcon\Http\RequestInterface;
 use Preferans\Oauth\Server\RequestEvent;
+use Preferans\Oauth\Http\RedirectUriAwareTrait;
 use Preferans\Oauth\Entities\UserEntityInterface;
 use Preferans\Oauth\Traits\RequestScopesAwareTrait;
 use Preferans\Oauth\Entities\ClientEntityInterface;
@@ -23,7 +24,7 @@ use Preferans\Oauth\Repositories\RefreshTokenRepositoryInterface;
  */
 class ImplicitGrant extends AbstractAuthorizeGrant
 {
-    use RequestScopesAwareTrait;
+    use RequestScopesAwareTrait, RedirectUriAwareTrait;
 
     /**
      * @var DateInterval
@@ -150,23 +151,11 @@ class ImplicitGrant extends AbstractAuthorizeGrant
             throw OAuthServerException::invalidClient();
         }
 
-        $redirectUri = $this->getQueryStringParameter('redirect_uri', $request);
-        $clientRedirect = $client->getRedirectUri();
-
-        if ($redirectUri !== null) {
-            if (is_string($clientRedirect) && (strcmp($clientRedirect, $redirectUri) !== 0)) {
-                $this->getEventsManager()->fire(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request);
-                throw OAuthServerException::invalidClient();
-            } elseif (is_array($clientRedirect) && in_array($redirectUri, $clientRedirect) === false) {
-                $this->getEventsManager()->fire(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request);
-                throw OAuthServerException::invalidClient();
-            }
-        } elseif (is_array($clientRedirect) && count($clientRedirect) !== 1 || empty($clientRedirect)) {
-            $this->getEventsManager()->fire(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request);
-            throw OAuthServerException::invalidClient();
-        } else {
-            $redirectUri = is_array($clientRedirect) ? $clientRedirect[0] : $clientRedirect;
-        }
+        $redirectUri = $this->normalizeRequestUri(
+            $client,
+            $request,
+            $this->getQueryStringParameter('redirect_uri', $request)
+        );
 
         $scopes = $this->getScopesFromRequest($request, true, $redirectUri, $this->defaultScope);
 

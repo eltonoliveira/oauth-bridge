@@ -119,7 +119,7 @@ class OAuthServerException extends \Exception
      *
      * @return static
      */
-    public static function invalidClient()
+    public static function invalidClient() : OAuthServerException
     {
         $errorMessage = 'Client authentication failed';
 
