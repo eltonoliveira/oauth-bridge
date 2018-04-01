@@ -32,8 +32,7 @@ trait RedirectUriAwareTrait
         ClientEntityInterface $client,
         RequestInterface $request,
         string $redirectUri = null
-    )
-    {
+    ) {
         $clientRedirect = $client->getRedirectUri();
 
         if ($redirectUri !== null) {

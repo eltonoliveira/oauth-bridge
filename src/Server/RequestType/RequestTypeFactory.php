@@ -38,8 +38,7 @@ class RequestTypeFactory extends Injectable
         string $redirectUri = null,
         string $state = null,
         array $scopes = []
-    ) : AuthorizationRequest
-    {
+    ) : AuthorizationRequest {
         $this->validateRequestUri($client, $request, $redirectUri);
 
         if ($redirectUri === null) {
