@@ -9,6 +9,7 @@ use Phalcon\Http\RequestInterface;
 use Preferans\Oauth\Server\RequestEvent;
 use Preferans\Oauth\Http\RedirectUriAwareTrait;
 use Preferans\Oauth\Entities\UserEntityInterface;
+use Preferans\Oauth\Server\RequestType\RequestTypeFactory;
 use Preferans\Oauth\Traits\RequestScopesAwareTrait;
 use Preferans\Oauth\Entities\ClientEntityInterface;
 use Preferans\Oauth\Exceptions\OAuthServerException;
@@ -151,35 +152,17 @@ class ImplicitGrant extends AbstractAuthorizeGrant
             throw OAuthServerException::invalidClient();
         }
 
-        $redirectUri = $this->normalizeRequestUri(
+        $arFactory  = new RequestTypeFactory();
+        $arFactory->setEventsManager($this->getEventsManager());
+
+        $authorizationRequest = $arFactory->createAuthorizationRequest(
+            $this,
             $client,
             $request,
-            $this->getQueryStringParameter('redirect_uri', $request)
+            $this->getQueryStringParameter('redirect_uri', $request),
+            $this->getQueryStringParameter('state', $request),
+            true
         );
-
-        $scopes = $this->getScopesFromRequest($request, true, $redirectUri, $this->defaultScope);
-
-        // Finalize the requested scopes
-        $finalizedScopes = $this->scopeRepository->finalizeScopes(
-            $scopes,
-            $this->getIdentifier(),
-            $client
-        );
-
-        $stateParameter = $this->getQueryStringParameter('state', $request);
-
-        $authorizationRequest = new AuthorizationRequest();
-        $authorizationRequest->setGrantTypeId($this->getIdentifier());
-        $authorizationRequest->setClient($client);
-        $authorizationRequest->setScopes($finalizedScopes);
-
-        if (!empty($redirectUri)) {
-            $authorizationRequest->setRedirectUri($redirectUri);
-        }
-
-        if ($stateParameter !== null) {
-            $authorizationRequest->setState($stateParameter);
-        }
 
         return $authorizationRequest;
     }

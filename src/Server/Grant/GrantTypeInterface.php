@@ -114,6 +114,13 @@ interface GrantTypeInterface extends EventsAwareInterface
     public function setScopeRepository(ScopeRepositoryInterface $scopeRepository);
 
     /**
+     * Get the scope repository.
+     *
+     * @return ScopeRepositoryInterface
+     */
+    public function getScopeRepository(): ScopeRepositoryInterface;
+
+    /**
      * Set the path to the private key.
      *
      * @param CryptKey $privateKey

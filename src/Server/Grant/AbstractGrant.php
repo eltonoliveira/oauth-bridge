@@ -119,6 +119,16 @@ abstract class AbstractGrant extends Injectable implements GrantTypeInterface
     }
 
     /**
+     * {@inheritdoc}
+     *
+     * @return ScopeRepositoryInterface
+     */
+    public function getScopeRepository(): ScopeRepositoryInterface
+    {
+        return $this->scopeRepository;
+    }
+
+    /**
      * @param RefreshTokenRepositoryInterface $refreshTokenRepository
      */
     public function setRefreshTokenRepository(RefreshTokenRepositoryInterface $refreshTokenRepository)
@@ -543,7 +553,6 @@ abstract class AbstractGrant extends Injectable implements GrantTypeInterface
     {
         try {
             return bin2hex(random_bytes($length));
-            // @codeCoverageIgnoreStart
         } catch (\TypeError $e) {
             throw OAuthServerException::serverError('An unexpected error has occurred');
         } catch (\Error $e) {
@@ -552,6 +561,5 @@ abstract class AbstractGrant extends Injectable implements GrantTypeInterface
             // If you get this message, the CSPRNG failed hard.
             throw OAuthServerException::serverError('Could not generate a random string');
         }
-        // @codeCoverageIgnoreEnd
     }
 }

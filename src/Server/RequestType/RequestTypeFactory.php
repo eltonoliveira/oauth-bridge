@@ -25,6 +25,7 @@ class RequestTypeFactory extends Injectable
      * @param RequestInterface      $request
      * @param string|null           $redirectUri
      * @param string|null           $state
+     * @param bool                  $finalizeRequestedScopes
      * @return AuthorizationRequest
      * @throws OAuthServerException
      */
@@ -33,10 +34,10 @@ class RequestTypeFactory extends Injectable
         ClientEntityInterface $client,
         RequestInterface $request,
         string $redirectUri = null,
-        string $state = null
+        string $state = null,
+        bool $finalizeRequestedScopes = false
     ) : AuthorizationRequest
     {
-
         $redirectUri = $this->normalizeRequestUri($client, $request, $redirectUri);
 
         $authorizationRequest = new AuthorizationRequest();
@@ -47,10 +48,14 @@ class RequestTypeFactory extends Injectable
         $authorizationRequest->setClient($client);
 
         $defaultScope = $grantType->getDefaultScope();
-        $authorizationRequest->setScopes(
-            $this->getScopesFromRequest($request, true, $redirectUri, $defaultScope)
-        );
+        $scopes =  $this->getScopesFromRequest($request, true, $redirectUri, $defaultScope);
 
+        if ($finalizeRequestedScopes) {
+            $scopeRepository = $grantType->getScopeRepository();
+            $scopes = $scopeRepository->finalizeScopes($scopes, $grantType->getIdentifier(), $client);
+        }
+
+        $authorizationRequest->setScopes($scopes);
         $authorizationRequest->setRedirectUri($redirectUri);
 
         if (!empty($state)) {

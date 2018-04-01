@@ -89,7 +89,7 @@ class OAuthServerException extends \Exception
      *
      * @return static
      */
-    public static function unsupportedGrantType()
+    public static function unsupportedGrantType(): OAuthServerException
     {
         $errorMessage = 'The authorization grant type is not supported by the authorization server.';
         $hint = 'Check the `grant_type` parameter';
@@ -105,7 +105,7 @@ class OAuthServerException extends \Exception
      *
      * @return static
      */
-    public static function invalidRequest($parameter, $hint = null)
+    public static function invalidRequest($parameter, $hint = null): OAuthServerException
     {
         $errorMessage = 'The request is missing a required parameter, includes an invalid parameter value, ' .
             'includes a parameter more than once, or is otherwise malformed.';
@@ -134,7 +134,7 @@ class OAuthServerException extends \Exception
      *
      * @return static
      */
-    public static function invalidScope(string $scope, $redirectUri = null)
+    public static function invalidScope(string $scope, $redirectUri = null): OAuthServerException
     {
         $errorMessage = 'The requested scope is invalid, unknown, or malformed';
 
@@ -155,7 +155,7 @@ class OAuthServerException extends \Exception
      *
      * @return static
      */
-    public static function invalidCredentials()
+    public static function invalidCredentials(): OAuthServerException
     {
         return new static(
             'The user credentials were incorrect.',
@@ -171,7 +171,7 @@ class OAuthServerException extends \Exception
      * @param string $hint
      * @return static
      */
-    public static function serverError(string $hint)
+    public static function serverError(string $hint): OAuthServerException
     {
         return new static(
             'The authorization server encountered an unexpected condition which prevented it from fulfilling'
@@ -189,7 +189,7 @@ class OAuthServerException extends \Exception
      *
      * @return static
      */
-    public static function invalidRefreshToken($hint = null)
+    public static function invalidRefreshToken($hint = null): OAuthServerException
     {
         return new static('The refresh token is invalid.', 8, 'invalid_request', 401, $hint);
     }
@@ -202,7 +202,7 @@ class OAuthServerException extends \Exception
      *
      * @return static
      */
-    public static function accessDenied($hint = null, $redirectUri = null)
+    public static function accessDenied($hint = null, $redirectUri = null): OAuthServerException
     {
         return new static(
             'The resource owner or authorization server denied the request.',
@@ -221,7 +221,7 @@ class OAuthServerException extends \Exception
      *
      * @return static
      */
-    public static function invalidGrant($hint = '')
+    public static function invalidGrant($hint = ''): OAuthServerException
     {
         return new static(
             'The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token '
