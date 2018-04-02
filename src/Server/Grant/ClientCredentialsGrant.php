@@ -4,6 +4,7 @@ namespace Preferans\Oauth\Server\Grant;
 
 use DateInterval;
 use Phalcon\Http\RequestInterface;
+use Preferans\Oauth\Server\RequestEvent;
 use Preferans\Oauth\Exceptions\OAuthServerException;
 use Preferans\Oauth\Traits\RequestScopesAwareTrait;
 use Preferans\Oauth\Server\ResponseType\ResponseTypeInterface;
@@ -41,6 +42,8 @@ class ClientCredentialsGrant extends AbstractGrant
 
         // Issue and persist access token
         $accessToken = $this->issueAccessToken($accessTokenTTL, $client, null, $finalizedScopes);
+
+        $this->getEventsManager()->fire(RequestEvent::ACCESS_TOKEN_ISSUED, $request);
 
         // Inject access token into response type
         $responseType->setAccessToken($accessToken);

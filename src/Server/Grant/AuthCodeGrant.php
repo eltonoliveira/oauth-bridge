@@ -5,6 +5,7 @@ namespace Preferans\Oauth\Server\Grant;
 use DateTime;
 use DateInterval;
 use LogicException;
+use InvalidArgumentException;
 use Phalcon\Http\RequestInterface;
 use Preferans\Oauth\Server\RequestEvent;
 use Preferans\Oauth\Entities\UserEntityInterface;
@@ -65,6 +66,30 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
     public function enableCodeChallengeVerifier(CodeChallengeVerifierInterface $codeChallengeVerifier)
     {
         $this->codeChallengeVerifiers[$codeChallengeVerifier->getMethod()] = $codeChallengeVerifier;
+    }
+
+    /**
+     * Disable a code challenge verifier on the grant.
+     *
+     * @param string|CodeChallengeVerifierInterface $codeChallengeVerifier
+     *
+     * @throws InvalidArgumentException
+     *
+     * @return void
+     */
+    public function disableCodeChallengeVerifier(CodeChallengeVerifierInterface $codeChallengeVerifier)
+    {
+        if ($codeChallengeVerifier instanceof CodeChallengeVerifierInterface) {
+            $method = $codeChallengeVerifier->getMethod();
+        } elseif (is_string($codeChallengeVerifier)) {
+            $method = $codeChallengeVerifier;
+        } else {
+            throw new InvalidArgumentException(
+                'Code Verifier must be either a string or implements CodeChallengeVerifierInterface'
+            );
+        }
+
+        unset($this->codeChallengeVerifiers[$method]);
     }
 
     /**
@@ -152,6 +177,17 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
                 throw OAuthServerException::invalidRequest('code_verifier');
             }
 
+            /**
+             * Validate code_verifier according to RFC-7636
+             * @link https://tools.ietf.org/html/rfc7636#section-4.1
+             */
+            if (preg_match('/^[A-Za-z0-9-._~]{43,128}$/', $codeVerifier) !== 1) {
+                throw OAuthServerException::invalidRequest(
+                    'code_verifier',
+                    'Code Verifier must follow the specifications of RFC-7636.'
+                );
+            }
+
             if (isset($this->codeChallengeVerifiers[$authCodePayload->code_challenge_method])) {
                 $verifier = $this->codeChallengeVerifiers[$authCodePayload->code_challenge_method];
 
@@ -168,6 +204,9 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
         // Issue and persist access + refresh tokens
         $accessToken = $this->issueAccessToken($accessTokenTTL, $client, $authCodePayload->user_id, $scopes);
         $refreshToken = $this->issueRefreshToken($accessToken);
+
+        $this->getEventsManager()->fire(RequestEvent::ACCESS_TOKEN_ISSUED, $request);
+        $this->getEventsManager()->fire(RequestEvent::REFRESH_TOKEN_ISSUED, $request);
 
         // Inject tokens into response type
         $responseType->setAccessToken($accessToken);

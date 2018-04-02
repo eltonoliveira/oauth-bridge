@@ -83,6 +83,9 @@ class RefreshTokenGrant extends AbstractGrant
         $accessToken = $this->issueAccessToken($accessTokenTTL, $client, $oldRefreshToken['user_id'], $scopes);
         $refreshToken = $this->issueRefreshToken($accessToken);
 
+        $this->getEventsManager()->fire(RequestEvent::ACCESS_TOKEN_ISSUED, $request);
+        $this->getEventsManager()->fire(RequestEvent::REFRESH_TOKEN_ISSUED, $request);
+
         // Inject tokens into response
         $responseType->setAccessToken($accessToken);
         $responseType->setRefreshToken($refreshToken);

@@ -70,6 +70,9 @@ class PasswordGrant extends AbstractGrant
         $accessToken = $this->issueAccessToken($accessTokenTTL, $client, $user->getIdentifier(), $finalizedScopes);
         $refreshToken = $this->issueRefreshToken($accessToken);
 
+        $this->getEventsManager()->fire(RequestEvent::ACCESS_TOKEN_ISSUED, $request);
+        $this->getEventsManager()->fire(RequestEvent::REFRESH_TOKEN_ISSUED, $request);
+
         // Inject tokens into response
         $responseType->setAccessToken($accessToken);
         $responseType->setRefreshToken($refreshToken);
